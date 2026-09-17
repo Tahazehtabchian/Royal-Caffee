@@ -1,6 +1,6 @@
 # Royal Caffee — Digital Menu Demo
 
-**Live demo →** https://fascinating-florentine-efbc76.netlify.app
+**Live demo →** https://taz-cafe-menu.vercel.app
 
 A single-file digital menu for a cafe, in Persian with a full right-to-left layout.
 There is no backend: the menu, cart and admin panel all run in the browser on
@@ -41,7 +41,7 @@ a placeholder name. The admin password is intentionally simple since this is a d
 
 # رویال کافه — نمونه‌ی منوی دیجیتال
 
-**مشاهده‌ی دمو ←** https://fascinating-florentine-efbc76.netlify.app
+**مشاهده‌ی دمو ←** https://taz-cafe-menu.vercel.app
 
 یک منوی دیجیتال تک‌فایل برای کافه، کاملاً فارسی و راست‌چین. بک‌اند ندارد: منو،
 سبد خرید و پنل مدیریت همگی با داده‌های نمونه در خود مرورگر کار می‌کنند؛ کل پروژه
