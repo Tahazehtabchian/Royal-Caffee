@@ -27,7 +27,7 @@ off disk.
 Plain HTML/CSS/JS, no build step, no dependencies — Tailwind CSS (CDN), Font
 Awesome, Vazirmatn font and the `qrcodejs` library, all loaded from public CDNs.
 Runs by opening `index.html` directly, or from any static host (this demo is on
-Netlify).
+Vercel).
 
 ### About the content
 
@@ -67,7 +67,7 @@ a placeholder name. The admin password is intentionally simple since this is a d
 HTML/CSS/JS ساده، بدون مرحله‌ی build و بدون هیچ وابستگی نصبی — Tailwind CSS
 (از طریق CDN)، Font Awesome، فونت وزیرمتن و کتابخانه‌ی `qrcodejs`، همگی از CDN
 عمومی بارگذاری می‌شوند. با باز کردن مستقیم `index.html` یا روی هر میزبان
-استاتیکی اجرا می‌شود (این دمو روی Netlify است).
+استاتیکی اجرا می‌شود (این دمو روی Vercel است).
 
 ### درباره‌ی محتوا
 

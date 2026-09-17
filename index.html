@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>کافه رویال | منوی دیجیتال</title>
+    <meta name="description" content="منوی دیجیتال کافه رویال — سفارش آنلاین نوشیدنی گرم و سرد، کیک و دسر و غذا از روی میز.">
+    <meta property="og:title" content="کافه رویال | منوی دیجیتال">
+    <meta property="og:description" content="اسکن کن، منو رو ببین، سفارش بده.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=800&q=80">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='80'%3E%E2%98%95%3C/text%3E%3C/svg%3E">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Vazirmatn Font -->
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <!-- QR Code generator (client-side, no server needed) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+    <style>
+        body { font-family: 'Vazirmatn', sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .gold-gradient { background: linear-gradient(135deg, #d97706 0%, #b45309 100%); }
+        .gold-text { background: linear-gradient(135deg, #f59e0b, #d97706); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+        .card-in { animation: fadeInUp .45s ease-out both; }
+
+        @keyframes toastIn { from { opacity: 0; transform: translateY(16px) scale(.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+        @keyframes toastOut { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(10px); } }
+        .toast-in { animation: toastIn .25s ease-out; }
+        .toast-out { animation: toastOut .2s ease-in forwards; }
+
+        @keyframes popIn { 0% { transform: scale(0); } 70% { transform: scale(1.15); } 100% { transform: scale(1); } }
+        .pop-in { animation: popIn .5s cubic-bezier(.34,1.56,.64,1); }
+
+        @keyframes badgeBounce { 0%,100% { transform: scale(1); } 30% { transform: scale(1.35); } 60% { transform: scale(.9); } }
+        .badge-bounce { animation: badgeBounce .4s ease; }
+
+        @keyframes shake { 10%,90% { transform: translateX(-1px); } 20%,80% { transform: translateX(2px); } 30%,50%,70% { transform: translateX(-4px); } 40%,60% { transform: translateX(4px); } }
+        .shake { animation: shake .5s; }
+
+        .hero-slide { transition: opacity .5s ease, transform .5s ease; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .card-in, .toast-in, .toast-out, .pop-in, .badge-bounce, .shake, .hero-slide { animation: none !important; transition: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen pb-24 border-t-4 border-amber-500">
+
+    <!-- Demo notice -->
+    <div class="bg-amber-500/10 border-b border-amber-500/20 text-amber-400 text-[10px] text-center py-1.5 px-3">
+        نسخه نمایشی منوی دیجیتال — تمام اقلام، قیمت‌ها و تصاویر جنبه نمونه دارند
+    </div>
+
+    <!-- Header -->
+    <header class="sticky top-0 z-40 bg-zinc-900/90 backdrop-blur-md border-b border-zinc-800/80 px-4 py-3 flex justify-between items-center shadow-lg">
+        <div class="flex items-center gap-3 min-w-0">
+            <div class="w-10 h-10 rounded-xl gold-gradient flex items-center justify-center font-bold text-zinc-950 shadow-md shadow-amber-600/30 flex-shrink-0">
+                <i class="fa-solid fa-mug-saucer text-lg"></i>
+            </div>
+            <div class="min-w-0">
+                <h1 class="font-extrabold text-base leading-tight gold-text truncate">کافه رویال</h1>
+                <p class="text-[10px] text-zinc-400 flex items-center gap-1.5">
+                    <span>تجربه منوی هوشمند دیجیتال</span>
+                    <span id="tableChip" class="hidden bg-amber-500/15 text-amber-400 border border-amber-500/30 px-1.5 py-0.5 rounded-full text-[9px] font-bold"></span>
+                </p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2 flex-shrink-0">
+            <!-- Cart Button -->
+            <button onclick="toggleCartModal()" class="relative bg-zinc-800 hover:bg-zinc-700 text-amber-500 p-2.5 rounded-xl border border-zinc-700 transition">
+                <i class="fa-solid fa-basket-shopping text-sm"></i>
+                <span id="cartCount" class="absolute -top-1.5 -right-1.5 bg-amber-500 text-zinc-950 text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center hidden">0</span>
+            </button>
+            <!-- Admin Panel Button -->
+            <button onclick="openAdminLogin()" class="bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition">
+                <i class="fa-solid fa-user-gear"></i>
+                <span>پنل</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Hero / Promo Slider -->
+    <div class="p-4">
+        <div id="heroWrap" class="relative overflow-hidden rounded-2xl bg-zinc-900 border border-amber-500/20 shadow-2xl h-32">
+            <!-- slides injected by JS -->
+        </div>
+        <div id="heroDots" class="flex justify-center gap-1.5 mt-2"></div>
+    </div>
+
+    <!-- Quick Filters -->
+    <div class="px-4 mb-3 flex gap-2">
+        <button onclick="toggleFilter('isPopular')" id="btnFilterPopular" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-zinc-900 text-zinc-400 border border-zinc-800 flex items-center gap-1 transition">
+            <i class="fa-solid fa-fire text-amber-500"></i> پرفروش‌ها
+        </button>
+        <button onclick="toggleFilter('isVeg')" id="btnFilterVeg" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-zinc-900 text-zinc-400 border border-zinc-800 flex items-center gap-1 transition">
+            <i class="fa-solid fa-leaf text-emerald-500"></i> گیاهی
+        </button>
+    </div>
+
+    <!-- Category Tabs -->
+    <div class="px-4 mb-4">
+        <div id="categoryContainer" class="flex gap-2 overflow-x-auto hide-scrollbar py-1"></div>
+    </div>
+
+    <!-- Search Box -->
+    <div class="px-4 mb-6">
+        <div class="relative">
+            <i class="fa-solid fa-magnifying-glass absolute right-3.5 top-3.5 text-zinc-500 text-xs"></i>
+            <input type="text" id="searchInput" oninput="renderProducts()" placeholder="جستجوی نام محصول یا ترکیب..."
+                class="w-full bg-zinc-900/90 border border-zinc-800 rounded-xl py-2.5 pr-10 pl-4 text-xs text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-amber-500 transition shadow-inner">
+        </div>
+    </div>
+
+    <!-- Products Grid -->
+    <main class="px-4">
+        <div id="productList" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="px-4 mt-10 text-center">
+        <p class="text-zinc-600 text-[10px]">ساخته‌شده به‌عنوان نمونه منوی دیجیتال · کافه رویال</p>
+    </footer>
+
+    <!-- Toast container -->
+    <div id="toastContainer" class="fixed bottom-4 left-1/2 -translate-x-1/2 z-[70] flex flex-col items-center gap-2 w-[92%] max-w-xs pointer-events-none"></div>
+
+    <!-- QUICK VIEW MODAL -->
+    <div id="quickViewModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-t-2xl sm:rounded-2xl w-full max-w-md max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
+            <div class="relative">
+                <img id="qvImg" src="" class="w-full h-48 object-cover bg-zinc-800">
+                <button onclick="closeQuickView()" class="absolute top-3 left-3 bg-zinc-950/70 backdrop-blur w-8 h-8 rounded-full flex items-center justify-center text-zinc-300 hover:text-white">
+                    <i class="fa-solid fa-xmark text-sm"></i>
+                </button>
+                <span id="qvVegBadge" class="hidden absolute top-3 right-3 text-[10px] bg-emerald-500/90 text-white px-2 py-0.5 rounded-full font-bold">گیاهی</span>
+            </div>
+            <div class="p-4 overflow-y-auto space-y-3">
+                <div class="flex justify-between items-start gap-3">
+                    <h3 id="qvTitle" class="font-extrabold text-sm text-zinc-100"></h3>
+                    <span id="qvPrice" class="text-amber-400 font-extrabold text-sm whitespace-nowrap"></span>
+                </div>
+                <p id="qvDesc" class="text-xs text-zinc-400 leading-relaxed"></p>
+            </div>
+            <div class="p-4 border-t border-zinc-800 bg-zinc-950 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-2 bg-zinc-900 border border-zinc-800 rounded-xl px-1">
+                    <button onclick="changeQvQty(-1)" class="w-8 h-8 text-zinc-300 rounded flex items-center justify-center text-sm">−</button>
+                    <span id="qvQty" class="font-bold text-sm w-5 text-center">1</span>
+                    <button onclick="changeQvQty(1)" class="w-8 h-8 text-zinc-300 rounded flex items-center justify-center text-sm">+</button>
+                </div>
+                <button onclick="addToCartFromQv()" class="flex-grow gold-gradient text-zinc-950 font-bold py-2.5 rounded-xl text-xs shadow-lg shadow-amber-600/20">افزودن به سبد</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CART MODAL -->
+    <div id="cartModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-t-2xl sm:rounded-2xl w-full max-w-md max-h-[85vh] flex flex-col overflow-hidden shadow-2xl">
+            <div class="p-4 border-b border-zinc-800 flex justify-between items-center bg-zinc-950">
+                <h3 class="font-bold text-amber-500 flex items-center gap-2 text-sm">
+                    <i class="fa-solid fa-basket-shopping"></i> سبد سفارش شما
+                </h3>
+                <button onclick="toggleCartModal()" class="text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-base"></i></button>
+            </div>
+            <div id="cartTableNotice" class="hidden px-4 pt-3 text-[11px] text-amber-400 bg-amber-500/5"></div>
+            <div id="cartItemsList" class="p-4 overflow-y-auto space-y-3 flex-grow"></div>
+            <div class="p-4 border-t border-zinc-800 bg-zinc-950 flex justify-between items-center">
+                <div>
+                    <span class="text-[10px] text-zinc-400 block">جمع کل:</span>
+                    <span id="cartTotalPrice" class="font-extrabold text-amber-500 text-sm">۰ تومان</span>
+                </div>
+                <button onclick="submitOrder()" class="gold-gradient text-zinc-950 font-bold px-5 py-2 rounded-xl text-xs shadow-lg shadow-amber-600/20">ثبت نهائی سفارش</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ORDER SUCCESS MODAL -->
+    <div id="orderSuccessModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-[60] hidden flex items-center justify-center p-4">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-xs p-6 text-center shadow-2xl">
+            <div class="pop-in w-16 h-16 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-400 flex items-center justify-center mx-auto mb-4">
+                <i class="fa-solid fa-check text-2xl"></i>
+            </div>
+            <h3 class="font-extrabold text-sm text-zinc-100 mb-1">سفارش شما ثبت شد!</h3>
+            <p id="orderSuccessDetail" class="text-xs text-zinc-400 leading-relaxed mb-5"></p>
+            <button onclick="closeOrderSuccess()" class="w-full gold-gradient text-zinc-950 font-bold py-2.5 rounded-xl text-xs">متوجه شدم</button>
+        </div>
+    </div>
+
+    <!-- ADMIN LOGIN MODAL -->
+    <div id="adminLoginModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div id="adminLoginBox" class="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-xs p-5 shadow-2xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-amber-500 flex items-center gap-2 text-sm"><i class="fa-solid fa-lock"></i> ورود به پنل مدیریت</h3>
+                <button onclick="closeAdminLogin()" class="text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-base"></i></button>
+            </div>
+            <form onsubmit="submitAdminLogin(event)" class="space-y-3">
+                <input type="password" id="adminPassInput" placeholder="رمز عبور (پیش‌فرض: 1234)" autofocus
+                    class="w-full bg-zinc-950 border border-zinc-800 rounded-lg p-2.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                <button type="submit" class="w-full gold-gradient text-zinc-950 font-bold py-2.5 rounded-lg text-xs">ورود</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ADMIN MODAL -->
+    <div id="adminModal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-2xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
+            <div class="p-4 border-b border-zinc-800 flex justify-between items-center bg-zinc-950">
+                <h3 class="font-bold text-amber-500 flex items-center gap-2 text-sm">
+                    <i class="fa-solid fa-sliders"></i> مدیریت منوی آنلاین
+                </h3>
+                <button onclick="toggleAdminModal()" class="text-zinc-400 hover:text-white"><i class="fa-solid fa-xmark text-base"></i></button>
+            </div>
+            <div class="p-4 overflow-y-auto space-y-5">
+                <form id="addProductForm" onsubmit="handleAddProduct(event)" class="space-y-3 bg-zinc-950 p-4 rounded-xl border border-zinc-800/80">
+                    <h4 id="formTitle" class="text-[11px] font-bold text-amber-500 uppercase tracking-wider mb-1">افزودن آیتم جدید</h4>
+                    <input type="text" id="pTitle" placeholder="عنوان آیتم (مثال: کاپوچینو)" required class="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="number" id="pPrice" placeholder="قیمت (تومان)" required class="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                        <select id="pCategory" class="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-xs text-zinc-300">
+                            <option value="نوشیدنی گرم">نوشیدنی گرم</option>
+                            <option value="نوشیدنی سرد">نوشیدنی سرد</option>
+                            <option value="کیک و دسر">کیک و دسر</option>
+                            <option value="غذا">غذا</option>
+                        </select>
+                    </div>
+                    <input type="url" id="pImg" placeholder="لینک تصویر (URL عکس)" required class="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                    <textarea id="pDesc" placeholder="توضیحات و ترکیبات..." class="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-xs text-white h-16 focus:outline-none focus:border-amber-500"></textarea>
+
+                    <div class="flex gap-4 py-1">
+                        <label class="flex items-center gap-1.5 text-xs text-zinc-300 cursor-pointer">
+                            <input type="checkbox" id="pPopular" class="accent-amber-500"> پرفروش
+                        </label>
+                        <label class="flex items-center gap-1.5 text-xs text-zinc-300 cursor-pointer">
+                            <input type="checkbox" id="pVeg" class="accent-emerald-500"> گیاهی (Veg)
+                        </label>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button type="submit" id="formSubmitBtn" class="flex-grow gold-gradient text-zinc-950 font-bold py-2 rounded-lg text-xs shadow-md transition hover:opacity-90">ذخیره آیتم در منو</button>
+                        <button type="button" id="formCancelBtn" onclick="cancelEdit()" class="hidden px-4 py-2 rounded-lg text-xs font-semibold bg-zinc-800 text-zinc-300 border border-zinc-700">لغو ویرایش</button>
+                    </div>
+                </form>
+
+                <div>
+                    <h4 class="text-[11px] font-bold text-zinc-400 uppercase tracking-wider mb-2">آیتم‌های فعال</h4>
+                    <div id="adminItemsList" class="space-y-2"></div>
+                </div>
+
+                <div class="bg-zinc-950 p-4 rounded-xl border border-zinc-800/80 space-y-3">
+                    <h4 class="text-[11px] font-bold text-amber-500 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-qrcode"></i> ساخت کد QR برای میز
+                    </h4>
+                    <p class="text-[10px] text-zinc-500 leading-relaxed">یک کد QR برای این صفحه بساز؛ برای هر میز می‌تونی شماره میز رو وارد کنی تا وقتی مشتری اسکن می‌کنه، شماره میزش خودکار ثبت بشه.</p>
+                    <div class="flex gap-2">
+                        <input type="number" id="qrTableInput" placeholder="شماره میز (اختیاری)" class="flex-grow bg-zinc-900 border border-zinc-800 rounded-lg p-2 text-xs text-white focus:outline-none focus:border-amber-500">
+                        <button onclick="generateQR()" class="gold-gradient text-zinc-950 font-bold px-4 rounded-lg text-xs">ساخت</button>
+                    </div>
+                    <div class="flex flex-col items-center gap-3 pt-2">
+                        <div id="qrPreview" class="bg-white p-2 rounded-xl"></div>
+                        <p id="qrLinkText" class="text-[10px] text-zinc-500 break-all text-center"></p>
+                        <button onclick="downloadQR()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-amber-400 border border-zinc-700 py-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-download"></i> دانلود تصویر QR
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        "use strict";
+
+        // ---------- Data ----------
+        const initialProducts = [
+            { id: 1, title: 'اسپرسو سینگل عربیکا', category: 'نوشیدنی گرم', price: 65000, desc: 'عصاره‌گیری تخصصی از دانه‌های ۱۰۰٪ عربیکا کلمبیا', img: 'https://images.unsplash.com/photo-1510591509098-f4fdc6d0ff04?w=500&q=80', isPopular: true, isVeg: true },
+            { id: 2, title: 'کاپوچینو کلاسیک', category: 'نوشیدنی گرم', price: 78000, desc: 'اسپرسو، شیر بخاردیده و لایه‌ای نرم از فوم با طرح لاته‌آرت', img: 'https://images.unsplash.com/photo-1572442388796-11668a67e53d?w=500&q=80', isPopular: false, isVeg: true },
+            { id: 3, title: 'دمنوش سیب و دارچین', category: 'نوشیدنی گرم', price: 58000, desc: 'ترکیب گیاهی آرام‌بخش، سرو شده با بیسکویت خانگی', img: 'https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=500&q=80', isPopular: false, isVeg: true },
+            { id: 4, title: 'ماچا لاته', category: 'نوشیدنی گرم', price: 88000, desc: 'پودر ماچای درجه‌یک ژاپنی روی شیر گرم و بافت مخملی', img: 'https://images.unsplash.com/photo-1515823064-d6e0c04616a7?w=500&q=80', isPopular: false, isVeg: true },
+
+            { id: 5, title: 'آیس لاته کارامل', category: 'نوشیدنی سرد', price: 95000, desc: 'اسپرسو، شیر تازه، سیروپ کارامل و یخ', img: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=500&q=80', isPopular: true, isVeg: false },
+            { id: 6, title: 'کلد برو یخ', category: 'نوشیدنی سرد', price: 89000, desc: 'دم‌آوری سرد ۱۸ ساعته، طعمی ملایم و بدون تلخی', img: 'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=500&q=80', isPopular: false, isVeg: true },
+            { id: 7, title: 'موهیتو بدون الکل', category: 'نوشیدنی سرد', price: 75000, desc: 'نعنای تازه، لیموترش و سودا؛ خنک و شاداب‌کننده', img: 'https://images.unsplash.com/photo-1544145945-f90425340c7e?w=500&q=80', isPopular: false, isVeg: true },
+            { id: 8, title: 'اسموتی میوه‌های فصل', category: 'نوشیدنی سرد', price: 82000, desc: 'میوه‌های تازه فصل، بدون شکر افزوده', img: 'https://images.unsplash.com/photo-1622597467836-f3285f2131b8?w=500&q=80', isPopular: true, isVeg: true },
+
+            { id: 9, title: 'چیزکیک نیویورکی', category: 'کیک و دسر', price: 120000, desc: 'چیزکیک تنوری کلاسیک به همراه سس توت‌فرنگی', img: 'https://images.unsplash.com/photo-1533134242443-d4fd215305ad?w=500&q=80', isPopular: false, isVeg: true },
+            { id: 10, title: 'تیرامیسو خانگی', category: 'کیک و دسر', price: 135000, desc: 'لایه‌های مالارپونه و بیسکویت خیس‌خورده در قهوه اسپرسو', img: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=500&q=80', isPopular: false, isVeg: true },
+            { id: 11, title: 'براونی گرم با شکلات', category: 'کیک و دسر', price: 98000, desc: 'براونی تازه از فر، با سس شکلات تلخ داغ', img: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=500&q=80', isPopular: false, isVeg: true },
+            { id: 12, title: 'کروسان کره‌ای', category: 'کیک و دسر', price: 68000, desc: 'کروسان فرانسوی لایه‌لایه با کره تازه', img: 'https://images.unsplash.com/photo-1555507036-ab1f4038808a?w=500&q=80', isPopular: false, isVeg: true },
+
+            { id: 13, title: 'پنکیک عسل و موز', category: 'غذا', price: 110000, desc: 'پنکیک نرم با موز تازه، عسل طبیعی و بلوبری', img: 'https://images.unsplash.com/photo-1528207776546-365bb710ee93?w=500&q=80', isPopular: false, isVeg: true },
+            { id: 14, title: 'تست آووکادو و تخم‌مرغ', category: 'غذا', price: 105000, desc: 'نان سبوس‌دار، آووکادوی له‌شده و تخم‌مرغ آب‌پز', img: 'https://images.unsplash.com/photo-1541519227354-08fa5d50c44d?w=500&q=80', isPopular: false, isVeg: true },
+            { id: 15, title: 'پاستا آلفردو مرغ', category: 'غذا', price: 165000, desc: 'پاستا فتوچینی، سس آلفردوی خامه‌ای و مرغ گریل‌شده', img: 'https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=500&q=80', isPopular: true, isVeg: false },
+            { id: 16, title: 'برگر مخصوص رویال', category: 'غذا', price: 175000, desc: 'برگر گوشت گوساله، چدار، سس مخصوص خانه و نان برشته', img: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&q=80', isPopular: true, isVeg: false }
+        ];
+
+        const catIcon = {
+            'همه': 'fa-border-all',
+            'نوشیدنی گرم': 'fa-mug-hot',
+            'نوشیدنی سرد': 'fa-glass-water',
+            'کیک و دسر': 'fa-cake-candles',
+            'غذا': 'fa-utensils'
+        };
+
+        const heroSlideIds = [15, 5, 10];
+        const heroCopy = {
+            15: { tag: '🔥 پرطرفدارترین غذا', title: 'پاستا آلفردو مرغ' },
+            5: { tag: '❄️ محبوب‌ترین نوشیدنی سرد', title: 'آیس لاته کارامل' },
+            10: { tag: '🍰 دسر ویژه امروز', title: 'تیرامیسو خانگی' }
+        };
+
+        let products = [];
+        try { products = JSON.parse(localStorage.getItem('royal_cafe_menu')) || initialProducts; } catch (e) { products = initialProducts; }
+
+        let cart = [];
+        let activeCategory = 'همه';
+        let filters = { isPopular: false, isVeg: false };
+        let editingId = null;
+        let qvId = null;
+        let qvQty = 1;
+        let tableNumber = null;
+        let heroIndex = 0;
+        let heroTimer = null;
+        let qrCodeInstance = null;
+
+        function saveProducts() {
+            try { localStorage.setItem('royal_cafe_menu', JSON.stringify(products)); } catch (e) {}
+        }
+
+        // ---------- Toasts ----------
+        function showToast(message, icon) {
+            icon = icon || 'fa-circle-check text-amber-400';
+            const container = document.getElementById('toastContainer');
+            const el = document.createElement('div');
+            el.className = 'toast-in pointer-events-auto w-full bg-zinc-900 border border-zinc-700 text-zinc-100 text-xs rounded-xl px-4 py-3 shadow-2xl flex items-center gap-2';
+            el.innerHTML = '<i class="fa-solid ' + icon + '"></i><span>' + message + '</span>';
+            container.appendChild(el);
+            setTimeout(() => {
+                el.classList.remove('toast-in');
+                el.classList.add('toast-out');
+                setTimeout(() => el.remove(), 200);
+            }, 2400);
+        }
+
+        // ---------- Table number (from ?table=N in the QR link) ----------
+        function initTableChip() {
+            const params = new URLSearchParams(location.search);
+            const t = params.get('table');
+            if (t) {
+                tableNumber = t;
+                const chip = document.getElementById('tableChip');
+                chip.textContent = 'میز ' + t;
+                chip.classList.remove('hidden');
+            }
+        }
+
+        // ---------- Hero carousel ----------
+        function initHero() {
+            const wrap = document.getElementById('heroWrap');
+            const dots = document.getElementById('heroDots');
+            wrap.innerHTML = heroSlideIds.map((id, i) => {
+                const p = products.find(x => x.id === id);
+                if (!p) return '';
+                const copy = heroCopy[id] || {};
+                return '<div class="hero-slide absolute inset-0 flex justify-between items-center p-5 cursor-pointer" data-i="' + i + '" style="opacity:' + (i === 0 ? 1 : 0) + '" onclick="heroClick(' + id + ')">' +
+                    '<div class="z-10 max-w-[65%]">' +
+                        '<span class="inline-block bg-amber-500/20 text-amber-400 text-[10px] px-2.5 py-0.5 rounded-full font-bold mb-2 border border-amber-500/30">' + (copy.tag || '') + '</span>' +
+                        '<h2 class="text-lg font-black text-white">' + p.title + '</h2>' +
+                        '<p class="text-xs text-zinc-400 mt-1 line-clamp-2">' + p.desc + '</p>' +
+                    '</div>' +
+                    '<div class="w-20 h-20 rounded-xl overflow-hidden shadow-lg border border-zinc-700 flex-shrink-0">' +
+                        '<img src="' + p.img + '" class="w-full h-full object-cover">' +
+                    '</div>' +
+                '</div>';
+            }).join('');
+            dots.innerHTML = heroSlideIds.map((_, i) =>
+                '<button onclick="goToHeroSlide(' + i + ')" data-dot="' + i + '" class="w-1.5 h-1.5 rounded-full transition ' + (i === 0 ? 'bg-amber-500 w-4' : 'bg-zinc-700') + '"></button>'
+            ).join('');
+            resetHeroTimer();
+        }
+
+        function goToHeroSlide(i) {
+            const slides = document.querySelectorAll('.hero-slide');
+            const dots = document.querySelectorAll('[data-dot]');
+            slides.forEach((s, idx) => { s.style.opacity = idx === i ? '1' : '0'; });
+            dots.forEach((d, idx) => {
+                d.className = 'h-1.5 rounded-full transition ' + (idx === i ? 'bg-amber-500 w-4' : 'bg-zinc-700 w-1.5');
+            });
+            heroIndex = i;
+            resetHeroTimer();
+        }
+
+        function resetHeroTimer() {
+            if (heroTimer) clearInterval(heroTimer);
+            heroTimer = setInterval(() => {
+                goToHeroSlide((heroIndex + 1) % heroSlideIds.length);
+            }, 4500);
+        }
+
+        function heroClick(id) {
+            openQuickView(id);
+        }
+
+        // ---------- Categories & filters ----------
+        function renderCategories() {
+            const categories = ['همه', ...new Set(products.map(p => p.category))];
+            const container = document.getElementById('categoryContainer');
+            container.innerHTML = categories.map(cat => `
+                <button onclick="setCategory('${cat}')"
+                    class="px-4 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition flex items-center gap-1.5 ${activeCategory === cat ? 'gold-gradient text-zinc-950 shadow-md shadow-amber-600/20' : 'bg-zinc-900 text-zinc-400 border border-zinc-800 hover:border-zinc-700'}">
+                    <i class="fa-solid ${catIcon[cat] || 'fa-tag'}"></i> ${cat}
+                </button>
+            `).join('');
+        }
+
+        function setCategory(cat) {
+            activeCategory = cat;
+            renderCategories();
+            renderProducts();
+        }
+
+        function toggleFilter(type) {
+            filters[type] = !filters[type];
+            const btn = document.getElementById(type === 'isPopular' ? 'btnFilterPopular' : 'btnFilterVeg');
+            if (filters[type]) {
+                btn.classList.add('border-amber-500', 'text-amber-400', 'bg-amber-500/10');
+            } else {
+                btn.classList.remove('border-amber-500', 'text-amber-400', 'bg-amber-500/10');
+            }
+            renderProducts();
+        }
+
+        // ---------- Product grid ----------
+        function renderProducts() {
+            const searchVal = document.getElementById('searchInput').value.toLowerCase();
+            const listContainer = document.getElementById('productList');
+
+            const filtered = products.filter(p => {
+                const matchesCat = activeCategory === 'همه' || p.category === activeCategory;
+                const matchesSearch = p.title.toLowerCase().includes(searchVal) || p.desc.toLowerCase().includes(searchVal);
+                const matchesPopular = !filters.isPopular || p.isPopular;
+                const matchesVeg = !filters.isVeg || p.isVeg;
+                return matchesCat && matchesSearch && matchesPopular && matchesVeg;
+            });
+
+            if (filtered.length === 0) {
+                listContainer.innerHTML = `<div class="col-span-full text-center py-12 text-zinc-500 text-xs flex flex-col items-center gap-2">
+                    <i class="fa-solid fa-mug-hot text-2xl text-zinc-700"></i>
+                    آیتمی یافت نشد.
+                </div>`;
+                return;
+            }
+
+            listContainer.innerHTML = filtered.map((p, i) => `
+                <div onclick="openQuickView(${p.id})" style="animation-delay:${i * 45}ms" class="card-in bg-zinc-900/80 border border-zinc-800/80 rounded-2xl p-3 flex gap-3 items-center hover:border-amber-500/40 transition shadow-lg cursor-pointer">
+                    <img src="${p.img}" alt="${p.title}" onerror="this.onerror=null;this.replaceWith(Object.assign(document.createElement('div'),{className:'w-24 h-24 rounded-xl bg-zinc-800 flex-shrink-0 flex items-center justify-center text-zinc-600',innerHTML:'<i class=\\'fa-solid fa-mug-saucer text-xl\\'></i>'}))" class="w-24 h-24 rounded-xl object-cover bg-zinc-800 flex-shrink-0">
+                    <div class="flex-grow min-w-0">
+                        <div class="flex justify-between items-start mb-1 gap-2">
+                            <h3 class="font-bold text-xs text-zinc-100 truncate">${p.title}</h3>
+                            <div class="flex gap-1 flex-shrink-0">
+                                ${p.isPopular ? '<span class="text-[9px] bg-amber-500/10 text-amber-400 border border-amber-500/20 px-1.5 py-0.5 rounded">پرفروش</span>' : ''}
+                                ${p.isVeg ? '<span class="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded">گیاهی</span>' : ''}
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-zinc-400 line-clamp-2 mb-2 leading-relaxed">${p.desc}</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-amber-400 font-extrabold text-xs">${p.price.toLocaleString('fa-IR')} <span class="text-[9px] font-normal text-zinc-500">تومان</span></span>
+                            <button onclick="event.stopPropagation(); quickAdd(${p.id})" class="bg-zinc-800 hover:bg-amber-500 hover:text-zinc-950 text-amber-500 w-7 h-7 rounded-lg flex items-center justify-center transition border border-zinc-700">
+                                <i class="fa-solid fa-plus text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ---------- Quick view ----------
+        function openQuickView(id) {
+            const p = products.find(x => x.id === id);
+            if (!p) return;
+            qvId = id;
+            qvQty = 1;
+            document.getElementById('qvImg').src = p.img;
+            document.getElementById('qvTitle').textContent = p.title;
+            document.getElementById('qvDesc').textContent = p.desc;
+            document.getElementById('qvPrice').textContent = p.price.toLocaleString('fa-IR') + ' تومان';
+            document.getElementById('qvQty').textContent = '1';
+            document.getElementById('qvVegBadge').classList.toggle('hidden', !p.isVeg);
+            document.getElementById('quickViewModal').classList.remove('hidden');
+        }
+
+        function closeQuickView() {
+            document.getElementById('quickViewModal').classList.add('hidden');
+        }
+
+        function changeQvQty(delta) {
+            qvQty = Math.max(1, qvQty + delta);
+            document.getElementById('qvQty').textContent = qvQty;
+        }
+
+        function addToCartFromQv() {
+            addToCart(qvId, qvQty);
+            closeQuickView();
+        }
+
+        function quickAdd(id) {
+            addToCart(id, 1);
+        }
+
+        // ---------- Cart ----------
+        function addToCart(id, qty) {
+            qty = qty || 1;
+            const item = products.find(p => p.id === id);
+            if (!item) return;
+            const exist = cart.find(c => c.id === id);
+            if (exist) { exist.qty += qty; } else { cart.push({ ...item, qty: qty }); }
+            updateCartUI();
+            showToast(item.title + ' به سبد اضافه شد', 'fa-basket-shopping text-amber-400');
+        }
+
+        function updateCartUI() {
+            const cartCount = document.getElementById('cartCount');
+            const totalQty = cart.reduce((acc, item) => acc + item.qty, 0);
+            const prevHidden = cartCount.classList.contains('hidden');
+            cartCount.textContent = totalQty;
+            cartCount.classList.toggle('hidden', totalQty === 0);
+            if (totalQty > 0 && !prevHidden) {
+                cartCount.classList.remove('badge-bounce');
+                void cartCount.offsetWidth;
+                cartCount.classList.add('badge-bounce');
+            }
+
+            const tableNotice = document.getElementById('cartTableNotice');
+            if (tableNumber) {
+                tableNotice.textContent = '🪑 سفارش برای میز شماره ' + tableNumber + ' ثبت می‌شود';
+                tableNotice.classList.remove('hidden');
+            } else {
+                tableNotice.classList.add('hidden');
+            }
+
+            const cartList = document.getElementById('cartItemsList');
+            if (cart.length === 0) {
+                cartList.innerHTML = `<div class="text-center text-zinc-500 text-xs py-8 flex flex-col items-center gap-2">
+                    <i class="fa-solid fa-basket-shopping text-2xl text-zinc-700"></i>
+                    سبد خرید خالی است.
+                </div>`;
+            } else {
+                cartList.innerHTML = cart.map(item => `
+                    <div class="flex justify-between items-center bg-zinc-950 p-2.5 rounded-xl border border-zinc-800 text-xs">
+                        <div>
+                            <p class="font-bold text-zinc-200">${item.title}</p>
+                            <p class="text-amber-500 text-[10px]">${(item.price * item.qty).toLocaleString('fa-IR')} تومان</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="changeQty(${item.id}, -1)" class="w-6 h-6 bg-zinc-800 text-zinc-300 rounded flex items-center justify-center">-</button>
+                            <span class="font-bold text-xs">${item.qty}</span>
+                            <button onclick="changeQty(${item.id}, 1)" class="w-6 h-6 bg-zinc-800 text-zinc-300 rounded flex items-center justify-center">+</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            const total = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+            document.getElementById('cartTotalPrice').textContent = total.toLocaleString('fa-IR') + ' تومان';
+        }
+
+        function changeQty(id, delta) {
+            const item = cart.find(c => c.id === id);
+            if (item) {
+                item.qty += delta;
+                if (item.qty <= 0) cart = cart.filter(c => c.id !== id);
+            }
+            updateCartUI();
+        }
+
+        function toggleCartModal() {
+            document.getElementById('cartModal').classList.toggle('hidden');
+        }
+
+        function submitOrder() {
+            if (cart.length === 0) {
+                showToast('سبد خرید شما خالی است', 'fa-triangle-exclamation text-red-400');
+                return;
+            }
+            const orderNo = Math.floor(1000 + Math.random() * 9000);
+            const total = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+            let detail = 'شماره سفارش #' + orderNo.toLocaleString('fa-IR') + ' — مبلغ ' + total.toLocaleString('fa-IR') + ' تومان';
+            detail += tableNumber ? ' برای میز ' + tableNumber : '';
+            detail += '. کارکنان کافه به‌زودی سفارش را آماده می‌کنند.';
+            document.getElementById('orderSuccessDetail').textContent = detail;
+            document.getElementById('cartModal').classList.add('hidden');
+            document.getElementById('orderSuccessModal').classList.remove('hidden');
+            cart = [];
+            updateCartUI();
+        }
+
+        function closeOrderSuccess() {
+            document.getElementById('orderSuccessModal').classList.add('hidden');
+        }
+
+        // ---------- Admin login ----------
+        function openAdminLogin() {
+            try {
+                if (sessionStorage.getItem('royal_cafe_admin') === '1') { toggleAdminModal(); return; }
+            } catch (e) {}
+            document.getElementById('adminLoginModal').classList.remove('hidden');
+            document.getElementById('adminPassInput').value = '';
+            setTimeout(() => document.getElementById('adminPassInput').focus(), 50);
+        }
+
+        function closeAdminLogin() {
+            document.getElementById('adminLoginModal').classList.add('hidden');
+        }
+
+        function submitAdminLogin(e) {
+            e.preventDefault();
+            const pass = document.getElementById('adminPassInput').value;
+            if (pass === '1234') {
+                try { sessionStorage.setItem('royal_cafe_admin', '1'); } catch (err) {}
+                closeAdminLogin();
+                toggleAdminModal();
+            } else {
+                const box = document.getElementById('adminLoginBox');
+                box.classList.remove('shake');
+                void box.offsetWidth;
+                box.classList.add('shake');
+                showToast('رمز عبور اشتباه است', 'fa-triangle-exclamation text-red-400');
+            }
+        }
+
+        // ---------- Admin panel ----------
+        function toggleAdminModal() {
+            const modal = document.getElementById('adminModal');
+            modal.classList.toggle('hidden');
+            if (!modal.classList.contains('hidden')) {
+                renderAdminItems();
+                generateQR();
+            }
+        }
+
+        function renderAdminItems() {
+            const container = document.getElementById('adminItemsList');
+            container.innerHTML = products.map(p => `
+                <div class="flex items-center justify-between bg-zinc-950 p-2 rounded-xl border border-zinc-800 text-xs">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <img src="${p.img}" class="w-8 h-8 rounded-lg object-cover flex-shrink-0">
+                        <div class="min-w-0">
+                            <p class="text-zinc-200 font-bold truncate">${p.title}</p>
+                            <p class="text-amber-500 text-[10px]">${p.price.toLocaleString('fa-IR')} تومان</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center flex-shrink-0">
+                        <button onclick="editProduct(${p.id})" class="text-zinc-400 hover:text-amber-400 p-1.5">
+                            <i class="fa-solid fa-pen"></i>
+                        </button>
+                        <button onclick="deleteProduct(${p.id})" class="text-red-400 hover:text-red-300 p-1.5">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function editProduct(id) {
+            const p = products.find(x => x.id === id);
+            if (!p) return;
+            editingId = id;
+            document.getElementById('pTitle').value = p.title;
+            document.getElementById('pPrice').value = p.price;
+            document.getElementById('pCategory').value = p.category;
+            document.getElementById('pImg').value = p.img;
+            document.getElementById('pDesc').value = p.desc;
+            document.getElementById('pPopular').checked = !!p.isPopular;
+            document.getElementById('pVeg').checked = !!p.isVeg;
+            document.getElementById('formTitle').textContent = 'ویرایش آیتم: ' + p.title;
+            document.getElementById('formSubmitBtn').textContent = 'به‌روزرسانی آیتم';
+            document.getElementById('formCancelBtn').classList.remove('hidden');
+            document.getElementById('addProductForm').scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function cancelEdit() {
+            editingId = null;
+            document.getElementById('addProductForm').reset();
+            document.getElementById('formTitle').textContent = 'افزودن آیتم جدید';
+            document.getElementById('formSubmitBtn').textContent = 'ذخیره آیتم در منو';
+            document.getElementById('formCancelBtn').classList.add('hidden');
+        }
+
+        function handleAddProduct(e) {
+            e.preventDefault();
+            const data = {
+                title: document.getElementById('pTitle').value,
+                price: Number(document.getElementById('pPrice').value),
+                category: document.getElementById('pCategory').value,
+                img: document.getElementById('pImg').value,
+                desc: document.getElementById('pDesc').value,
+                isPopular: document.getElementById('pPopular').checked,
+                isVeg: document.getElementById('pVeg').checked
+            };
+
+            if (editingId !== null) {
+                const idx = products.findIndex(p => p.id === editingId);
+                if (idx !== -1) products[idx] = { ...products[idx], ...data };
+                showToast('آیتم به‌روزرسانی شد', 'fa-pen text-amber-400');
+            } else {
+                products.push({ id: Date.now(), ...data });
+                showToast('آیتم جدید به منو اضافه شد', 'fa-circle-plus text-emerald-400');
+            }
+
+            saveProducts();
+            renderCategories();
+            renderProducts();
+            renderAdminItems();
+            cancelEdit();
+        }
+
+        function deleteProduct(id) {
+            products = products.filter(p => p.id !== id);
+            saveProducts();
+            renderCategories();
+            renderProducts();
+            renderAdminItems();
+            showToast('آیتم حذف شد', 'fa-trash text-red-400');
+            if (editingId === id) cancelEdit();
+        }
+
+        // ---------- QR generator ----------
+        function generateQR() {
+            const table = document.getElementById('qrTableInput').value.trim();
+            const base = location.origin + location.pathname;
+            const url = table ? (base + '?table=' + encodeURIComponent(table)) : base;
+
+            const preview = document.getElementById('qrPreview');
+            preview.innerHTML = '';
+            qrCodeInstance = new QRCode(preview, {
+                text: url,
+                width: 200,
+                height: 200,
+                colorDark: '#18181b',
+                colorLight: '#ffffff',
+                correctLevel: QRCode.CorrectLevel.H
+            });
+            document.getElementById('qrLinkText').textContent = url;
+        }
+
+        function downloadQR() {
+            const preview = document.getElementById('qrPreview');
+            const canvas = preview.querySelector('canvas');
+            if (!canvas) { showToast('ابتدا کد QR را بساز', 'fa-triangle-exclamation text-red-400'); return; }
+            const table = document.getElementById('qrTableInput').value.trim();
+            const link = document.createElement('a');
+            link.download = table ? ('qr-table-' + table + '.png') : 'qr-menu.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+
+        // ---------- Init ----------
+        initTableChip();
+        renderCategories();
+        renderProducts();
+        initHero();
+    </script>
+</body>
+</html>
